@@ -1,0 +1,55 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT || 22 }}
+        script: |
+          # Переход в директорию проекта
+          cd /var/www/gavhar-restaurant
+          
+          # Остановка приложения
+          pm2 stop gavhar || true
+          
+          # Обновление кода
+          git fetch origin
+          git reset --hard origin/main
+          
+          # Установка зависимостей
+          npm ci --production
+          
+          # Инициализация базы данных (если нужно)
+          if [ ! -f database.sqlite ]; then
+            npm run init-db
+          fi
+          
+          # Создание .env файла если не существует
+          if [ ! -f .env ]; then
+            cp env.example .env
+            echo "⚠️  Не забудьте настроить .env файл!"
+          fi
+          
+          # Установка прав доступа
+          chmod 755 uploads/
+          chmod 644 database.sqlite 2>/dev/null || true
+          
+          # Запуск приложения
+          pm2 start ecosystem.config.js
+          
+          # Проверка статуса
+          pm2 status
+          
+          echo "✅ Деплой завершен успешно!"

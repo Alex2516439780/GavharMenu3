@@ -1,0 +1,45 @@
+{
+  "name": "gavhar-restaurant-backend",
+  "version": "1.0.0",
+  "description": "Backend API for GAVHAR Restaurant Menu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "init-db": "node scripts/init-database.js",
+    "build": "node scripts/build-minify.js",
+    "update-version": "node scripts/update-version.js",
+    "images:generate": "node scripts/generate-images.js",
+    "fonts:build": "node scripts/build-fonts.js",
+    "icons:optimize": "node scripts/optimize-icons.js",
+    "deploy": "npm run build && npm run images:generate && npm run update-version"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "nodemon": "^3.0.2",
+    "ttf2woff2": "^5.0.0",
+    "sharp": "^0.33.5",
+    "terser": "^5.44.0"
+  },
+  "keywords": [
+    "restaurant",
+    "menu",
+    "api",
+    "nodejs",
+    "express"
+  ],
+  "author": "GAVHAR Restaurant",
+  "license": "MIT"
+}

@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  gavhar-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backups:/app/backups
+      - ./database.sqlite:/app/database.sqlite
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - DB_PATH=./database.sqlite
+      - UPLOAD_PATH=./uploads
+      - MAX_FILE_SIZE=15728640
+      - FRONTEND_URL=http://localhost:3000
+      - BACKUP_ENABLED=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - gavhar-app
+    restart: unless-stopped
