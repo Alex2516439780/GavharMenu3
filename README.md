@@ -17,6 +17,7 @@
 ## 🛠️ Технологии
 
 ### Backend
+
 - **Node.js** - JavaScript runtime
 - **Express.js** - Web framework
 - **SQLite** - База данных
@@ -26,12 +27,14 @@
 - **Sharp** - Обработка изображений
 
 ### Frontend
+
 - **Vanilla JavaScript** - Без фреймворков
 - **CSS3** - Современные стили
 - **Service Worker** - Офлайн-функциональность
 - **WebP/AVIF** - Оптимизированные изображения
 
 ### DevOps
+
 - **PM2** - Process manager
 - **Nginx** - Reverse proxy
 - **GitHub Actions** - CI/CD
@@ -42,32 +45,38 @@
 ### Локальная разработка
 
 1. **Клонирование репозитория**
+
 ```bash
 git clone https://github.com/yourusername/gavhar-restaurant.git
 cd gavhar-restaurant
 ```
 
 2. **Установка зависимостей**
+
 ```bash
 npm install
 ```
 
 3. **Инициализация базы данных**
+
 ```bash
 npm run init-db
 ```
 
 4. **Запуск сервера**
+
 ```bash
 npm start
 ```
 
 5. **Открытие в браузере**
+
 - Фронтенд: http://localhost:3000
 - Админ-панель: http://localhost:3000/admin.html
 - API: http://localhost:3000/api
 
 ### Доступ к админ-панели
+
 - **Логин**: admin
 - **Пароль**: admin123
 
@@ -103,6 +112,7 @@ gavhar-restaurant/
 ## 🔧 API Endpoints
 
 ### Публичные
+
 - `GET /api/categories` - Получить категории
 - `GET /api/dishes` - Получить блюда
 - `GET /api/dishes/search` - Поиск блюд
@@ -111,6 +121,7 @@ gavhar-restaurant/
 - `GET /api/health` - Проверка здоровья
 
 ### Админские (требуют JWT)
+
 - `POST /api/auth/login` - Вход в систему
 - `POST /api/auth/logout` - Выход из системы
 - `GET /api/auth/verify` - Проверка токена
@@ -239,30 +250,31 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd /path/to/gavhar-restaurant
-          git pull origin main
-          npm install --production
-          pm2 restart gavhar
+      - uses: actions/checkout@v3
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /path/to/gavhar-restaurant
+            git pull origin main
+            npm install --production
+            pm2 restart gavhar
 ```
 
 ## 📊 Мониторинг
 
 ### PM2 команды
+
 ```bash
 pm2 status          # Статус процессов
 pm2 logs gavhar     # Просмотр логов
@@ -271,6 +283,7 @@ pm2 stop gavhar     # Остановка
 ```
 
 ### Логи приложения
+
 ```bash
 tail -f logs/out.log    # Основные логи
 tail -f logs/error.log  # Ошибки
@@ -330,6 +343,7 @@ npm run update-version # Обновление версии
 ## 📞 Поддержка
 
 При возникновении проблем:
+
 1. Проверьте [Issues](https://github.com/yourusername/gavhar-restaurant/issues)
 2. Создайте новый Issue с описанием проблемы
 3. Приложите логи и скриншоты
