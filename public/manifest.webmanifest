@@ -1,0 +1,13 @@
+{
+  "name": "Gavhar Menu",
+  "short_name": "Gavhar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d3c32",
+  "theme_color": "#0d3c32",
+  "icons": [
+    { "src": "/ELEMENTS/Gavhar logo-02 1.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/ELEMENTS/Gavhar logo-02 13.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
+

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GAVHAR Restaurant - Админ-панель (Простая версия)</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a3d2e 0%, #2d5a47 100%);
+        color: #d4af37;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .login-form {
+        max-width: 400px;
+        margin: 50px auto;
+        background: #2d5a47;
+        padding: 30px;
+        border-radius: 15px;
+        border: 2px solid #d4af37;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d4af37;
+        border-radius: 5px;
+        background: #1a3d2e;
+        color: #d4af37;
+      }
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 5px;
+      }
+      .btn-primary {
+        background: #d4af37;
+        color: #1a3d2e;
+      }
+      .btn-danger {
+        background: #e74c3c;
+        color: white;
+      }
+      .btn-warning {
+        background: #f39c12;
+        color: white;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+      .admin-content {
+        display: none;
+      }
+      .dish-item {
+        background: #2d5a47;
+        border: 2px solid #d4af37;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .dish-info h3 {
+        margin: 0 0 10px 0;
+        color: #d4af37;
+      }
+      .dish-info p {
+        margin: 5px 0;
+        color: #b8c5a6;
+      }
+      .dish-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        color: white;
+        z-index: 1000;
+      }
+      .notification.success {
+        background: #27ae60;
+      }
+      .notification.error {
+        background: #e74c3c;
+      }
+    </style>
+    <link rel="apple-touch-icon" href="ELEMENTS/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="ELEMENTS/favicon/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="ELEMENTS/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="ELEMENTS/favicon/web-app-manifest-512x512.png"
+    />
+    <link rel="icon" type="image/x-icon" href="ELEMENTS/favicon/favicon.ico" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Login Form -->
+      <div id="loginForm" class="login-form">
+        <h2>Вход в админ-панель</h2>
+        <div class="form-group">
+          <label for="username">Логин:</label>
+          <input type="text" id="username" value="admin" />
+        </div>
+        <div class="form-group">
+          <label for="password">Пароль:</label>
+          <input type="password" id="password" />
+        </div>
+        <button class="btn btn-primary" onclick="login()">Войти</button>
+      </div>
+
+      <!-- Admin Content -->
+      <div id="adminContent" class="admin-content">
+        <div class="header">
+          <h1>GAVHAR Restaurant - Админ-панель</h1>
+          <button class="btn btn-primary" onclick="logout()">Выйти</button>
+        </div>
+
+        <div>
+          <h2>Управление блюдами</h2>
+          <button class="btn btn-primary" onclick="loadDishes()">
+            Загрузить блюда
+          </button>
+          <div id="dishesList"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let authToken = null;
+      const API_BASE = "/api";
+
+      // Simple login function
+      async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            authToken = data.data.token;
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("adminContent").style.display = "block";
+            showNotification("Успешный вход в систему", "success");
+          } else {
+            showNotification("Ошибка входа: " + data.error, "error");
+          }
+        } catch (error) {
+          showNotification("Ошибка входа: " + error.message, "error");
+        }
+      }
+
+      // Simple logout function
+      function logout() {
+        authToken = null;
+        document.getElementById("loginForm").style.display = "block";
+        document.getElementById("adminContent").style.display = "none";
+        showNotification("Выход из системы", "success");
+      }
+
+      // Load dishes function
+      async function loadDishes() {
+        try {
+          const response = await fetch(`${API_BASE}/dishes?restaurant=true`);
+          const data = await response.json();
+
+          if (data.success) {
+            renderDishes(data.data);
+            showNotification("Блюда загружены", "success");
+          } else {
+            showNotification("Ошибка загрузки блюд", "error");
+          }
+        } catch (error) {
+          showNotification("Ошибка загрузки блюд: " + error.message, "error");
+        }
+      }
+
+      // Render dishes function
+      function renderDishes(dishes) {
+        const container = document.getElementById("dishesList");
+        container.innerHTML = "";
+
+        dishes.forEach((dish) => {
+          const dishElement = document.createElement("div");
+          dishElement.className = "dish-item";
+          dishElement.innerHTML = `
+                    <div class="dish-info">
+                        <h3>${dish.name.ru}</h3>
+                        <p>Цена: ${dish.price.toLocaleString()} сум</p>
+                        <p>Категория: ${
+                          dish.categoryName?.ru || dish.category
+                        }</p>
+                        <p>Статус: ${
+                          dish.inStock ? "В наличии" : "Нет в наличии"
+                        }</p>
+                    </div>
+                    <div class="dish-actions">
+                        <button class="btn btn-primary" onclick="editDish(${
+                          dish.id
+                        })">✏️ Редактировать</button>
+                        <button class="btn btn-danger" onclick="deleteDish(${
+                          dish.id
+                        })">🗑️ Удалить</button>
+                        <button class="btn btn-warning" onclick="toggleDishStatus(${
+                          dish.id
+                        })">👁️ ${dish.inStock ? "Скрыть" : "Показать"}</button>
+                    </div>
+                `;
+          container.appendChild(dishElement);
+        });
+      }
+
+      // Action functions
+      function editDish(id) {
+        console.log("Edit dish clicked:", id);
+        showNotification("Редактирование блюда " + id, "success");
+      }
+
+      function deleteDish(id) {
+        console.log("Delete dish clicked:", id);
+        if (confirm("Вы уверены, что хотите удалить это блюдо?")) {
+          showNotification("Удаление блюда " + id, "success");
+        }
+      }
+
+      function toggleDishStatus(id) {
+        console.log("Toggle dish status clicked:", id);
+        showNotification("Переключение статуса блюда " + id, "success");
+      }
+
+      // Notification function
+      function showNotification(message, type) {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+
+      // Check if already logged in
+      window.addEventListener("load", function () {
+        const savedToken = localStorage.getItem("admin_token");
+        if (savedToken) {
+          authToken = savedToken;
+          document.getElementById("loginForm").style.display = "none";
+          document.getElementById("adminContent").style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>

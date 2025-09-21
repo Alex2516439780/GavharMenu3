@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Admin Panel</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #1a3d2e;
+        color: #d4af37;
+        padding: 20px;
+      }
+      .test-section {
+        background: #2d5a47;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        border: 2px solid #d4af37;
+      }
+      .btn {
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .btn-primary {
+        background: #d4af37;
+        color: #1a3d2e;
+      }
+      .btn-danger {
+        background: #e74c3c;
+        color: white;
+      }
+      .btn-warning {
+        background: #f39c12;
+        color: white;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+      .log {
+        background: #000;
+        color: #0f0;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+    <link rel="apple-touch-icon" href="ELEMENTS/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="ELEMENTS/favicon/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="ELEMENTS/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="ELEMENTS/favicon/web-app-manifest-512x512.png"
+    />
+    <link rel="icon" type="image/x-icon" href="ELEMENTS/favicon/favicon.ico" />
+  </head>
+  <body>
+    <h1>🔍 Debug Admin Panel</h1>
+
+    <div class="test-section">
+      <h2>1. Проверка загрузки JavaScript</h2>
+      <button class="btn btn-primary" onclick="testBasicJS()">
+        Тест базового JS
+      </button>
+      <div id="basicTest"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>2. Проверка API</h2>
+      <button class="btn btn-primary" onclick="testAPI()">Тест API</button>
+      <div id="apiTest"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>3. Проверка аутентификации</h2>
+      <button class="btn btn-primary" onclick="testAuth()">Тест входа</button>
+      <div id="authTest"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>4. Тест кнопок</h2>
+      <button class="btn btn-primary" onclick="testEdit(1)">
+        ✏️ Редактировать
+      </button>
+      <button class="btn btn-danger" onclick="testDelete(1)">🗑️ Удалить</button>
+      <button class="btn btn-warning" onclick="testToggle(1)">
+        👁️ Переключить
+      </button>
+      <div id="buttonTest"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>📋 Лог консоли</h2>
+      <div id="consoleLog" class="log"></div>
+      <button class="btn btn-primary" onclick="clearLog()">Очистить лог</button>
+    </div>
+
+    <script>
+      // Перехватываем console.log
+      const originalLog = console.log;
+      const originalError = console.error;
+      const logElement = document.getElementById("consoleLog");
+
+      function addToLog(message, type = "log") {
+        const timestamp = new Date().toLocaleTimeString();
+        const color = type === "error" ? "#f00" : "#0f0";
+        logElement.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+
+      console.log = function (...args) {
+        originalLog.apply(console, args);
+        addToLog(args.join(" "), "log");
+      };
+
+      console.error = function (...args) {
+        originalError.apply(console, args);
+        addToLog(args.join(" "), "error");
+      };
+
+      // Тестовые функции
+      function testBasicJS() {
+        console.log("✅ Базовый JavaScript работает!");
+        document.getElementById("basicTest").innerHTML =
+          '<p style="color: #0f0;">✅ JavaScript загружен и работает</p>';
+      }
+
+      async function testAPI() {
+        try {
+          console.log("🔄 Тестируем API...");
+          const response = await fetch("/api/health");
+          const data = await response.json();
+          console.log("✅ API ответ:", data);
+          document.getElementById(
+            "apiTest"
+          ).innerHTML = `<p style="color: #0f0;">✅ API работает: ${data.status}</p>`;
+        } catch (error) {
+          console.error("❌ Ошибка API:", error);
+          document.getElementById(
+            "apiTest"
+          ).innerHTML = `<p style="color: #f00;">❌ Ошибка API: ${error.message}</p>`;
+        }
+      }
+
+      async function testAuth() {
+        try {
+          console.log("🔄 Тестируем аутентификацию...");
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: "admin", password: "admin123" }),
+          });
+          const data = await response.json();
+          console.log("✅ Аутентификация:", data);
+          if (data.success) {
+            document.getElementById("authTest").innerHTML =
+              '<p style="color: #0f0;">✅ Аутентификация работает</p>';
+          } else {
+            document.getElementById("authTest").innerHTML =
+              '<p style="color: #f00;">❌ Ошибка аутентификации</p>';
+          }
+        } catch (error) {
+          console.error("❌ Ошибка аутентификации:", error);
+          document.getElementById(
+            "authTest"
+          ).innerHTML = `<p style="color: #f00;">❌ Ошибка: ${error.message}</p>`;
+        }
+      }
+
+      function testEdit(id) {
+        console.log("✏️ Тест редактирования:", id);
+        document.getElementById("buttonTest").innerHTML =
+          '<p style="color: #0f0;">✅ Кнопка редактирования работает</p>';
+      }
+
+      function testDelete(id) {
+        console.log("🗑️ Тест удаления:", id);
+        document.getElementById("buttonTest").innerHTML =
+          '<p style="color: #0f0;">✅ Кнопка удаления работает</p>';
+      }
+
+      function testToggle(id) {
+        console.log("👁️ Тест переключения:", id);
+        document.getElementById("buttonTest").innerHTML =
+          '<p style="color: #0f0;">✅ Кнопка переключения работает</p>';
+      }
+
+      function clearLog() {
+        document.getElementById("consoleLog").innerHTML = "";
+      }
+
+      // Автоматический тест при загрузке
+      window.addEventListener("load", function () {
+        console.log("🚀 Страница загружена");
+        console.log("🌐 URL:", window.location.href);
+        console.log("📱 User Agent:", navigator.userAgent);
+
+        // Проверяем доступность функций
+        console.log("🔍 Проверка функций:");
+        console.log("  - testBasicJS:", typeof testBasicJS);
+        console.log("  - testAPI:", typeof testAPI);
+        console.log("  - testAuth:", typeof testAuth);
+        console.log("  - testEdit:", typeof testEdit);
+        console.log("  - testDelete:", typeof testDelete);
+        console.log("  - testToggle:", typeof testToggle);
+      });
+
+      // Обработка ошибок
+      window.addEventListener("error", function (e) {
+        console.error("❌ Ошибка JavaScript:", e.error);
+      });
+
+      // Обработка необработанных промисов
+      window.addEventListener("unhandledrejection", function (e) {
+        console.error("❌ Необработанная ошибка Promise:", e.reason);
+      });
+    </script>
+  </body>
+</html>

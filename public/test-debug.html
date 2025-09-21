@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Test</title>
+  </head>
+  <body>
+    <h1>Debug Test Page</h1>
+    <button id="testBtn">Test Button</button>
+    <div id="output"></div>
+
+    <script>
+      console.log("=== DEBUG PAGE LOADED ===");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("=== DOM CONTENT LOADED ===");
+
+        const testBtn = document.getElementById("testBtn");
+        const output = document.getElementById("output");
+
+        if (testBtn) {
+          console.log("Test button found");
+          testBtn.addEventListener("click", function () {
+            console.log("=== BUTTON CLICKED ===");
+            output.innerHTML = "Button clicked! Check console for logs.";
+
+            // Test API call
+            fetch("/api/dishes/1")
+              .then((response) => response.json())
+              .then((data) => {
+                console.log("API Response:", data);
+                output.innerHTML += "<br>API Response: " + JSON.stringify(data);
+              })
+              .catch((error) => {
+                console.error("API Error:", error);
+                output.innerHTML += "<br>API Error: " + error.message;
+              });
+          });
+        } else {
+          console.error("Test button not found");
+        }
+      });
+    </script>
+  </body>
+</html>

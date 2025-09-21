@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Page</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+      }
+      .search {
+        display: flex;
+        margin: 20px 0;
+      }
+      .search-input-container {
+        position: relative;
+      }
+      .search input {
+        padding: 12px 40px 12px 16px;
+        border: 2px solid #0a6553;
+        border-radius: 25px 0 0 25px;
+        width: 300px;
+      }
+      .clear-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #666;
+        cursor: pointer;
+      }
+    </style>
+    <link rel="apple-touch-icon" href="ELEMENTS/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="ELEMENTS/favicon/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="ELEMENTS/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="ELEMENTS/favicon/web-app-manifest-512x512.png"
+    />
+    <link rel="icon" type="image/x-icon" href="ELEMENTS/favicon/favicon.ico" />
+  </head>
+  <body>
+    <h1>Test Page - New Version</h1>
+    <p>Current time: <span id="time"></span></p>
+
+    <div class="search">
+      <div class="search-input-container">
+        <input type="text" id="searchInput" placeholder="Test search" />
+        <button class="clear-btn" id="clearBtn" style="display: none">✕</button>
+      </div>
+      <button>Search</button>
+    </div>
+
+    <script>
+      document.getElementById("time").textContent = new Date().toLocaleString();
+
+      const input = document.getElementById("searchInput");
+      const clearBtn = document.getElementById("clearBtn");
+
+      input.addEventListener("input", function () {
+        if (this.value.length > 0) {
+          clearBtn.style.display = "block";
+        } else {
+          clearBtn.style.display = "none";
+        }
+      });
+
+      clearBtn.addEventListener("click", function () {
+        input.value = "";
+        this.style.display = "none";
+      });
+    </script>
+  </body>
+</html>

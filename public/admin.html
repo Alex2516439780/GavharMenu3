@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GAVHAR Restaurant - Админ-панель</title>
+    <link
+      rel="preload"
+      as="style"
+      href="admin-styles.min.css?v=1758058659136"
+    />
+    <link rel="stylesheet" href="admin-styles.min.css?v=1758058659136" />
+    <!-- Убраны внешние Google Fonts: ускорение первого рендера, меньше сетевых запросов -->
+    <link rel="apple-touch-icon" href="ELEMENTS/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="ELEMENTS/favicon/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="ELEMENTS/favicon/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="ELEMENTS/favicon/web-app-manifest-512x512.png"
+    />
+    <link rel="icon" type="image/x-icon" href="ELEMENTS/favicon/favicon.ico" />
+  </head>
+  <body class="athena">
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+      <div class="login-content">
+        <h2>Вход в админ-панель</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="username">Логин:</label>
+            <input type="text" id="username" required value="admin" />
+          </div>
+          <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit" class="login-btn">Войти</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Admin Interface -->
+    <div class="admin-container" id="adminContainer" style="display: none">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="admin-logo">
+          <div class="logo-text">
+            <span class="logo-main">GAVHAR</span>
+            <span class="logo-sub">admin</span>
+          </div>
+        </div>
+        <div class="admin-nav">
+          <button class="nav-btn active" data-section="dishes">Блюда</button>
+          <button class="nav-btn" data-section="categories">Категории</button>
+        </div>
+        <div class="admin-actions">
+          <a href="menu.html" class="view-site-btn">Посмотреть сайт</a>
+          <button class="refresh-menu-btn" id="refreshMenuBtn">
+            🔄 Обновить меню
+          </button>
+          <button class="logout-btn" id="logoutBtn">Выйти</button>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="admin-main">
+        <!-- Dishes Section -->
+        <section class="admin-section active" id="dishesSection">
+          <div class="section-header">
+            <h2>Управление блюдами</h2>
+            <button class="add-btn" id="addDishBtn">+ Добавить блюдо</button>
+          </div>
+          <div class="filters-bar">
+            <label for="categorySelect">Фильтр по категории:</label>
+            <select id="categorySelect">
+              <option value="">Все категории</option>
+            </select>
+          </div>
+
+          <div class="dishes-list" id="dishesList">
+            <!-- Dishes will be loaded here -->
+          </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="admin-section" id="categoriesSection">
+          <div class="section-header">
+            <h2>Управление категориями</h2>
+            <button class="add-btn" id="addCategoryBtn">
+              + Добавить категорию
+            </button>
+          </div>
+
+          <div class="categories-list" id="categoriesList">
+            <!-- Categories will be loaded here -->
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Dish Modal -->
+    <div class="modal" id="dishModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Добавить блюдо</h3>
+          <button class="close-btn" id="closeDishModal">×</button>
+        </div>
+        <form id="dishForm" class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dishNameRu">Название (RU):</label>
+              <input type="text" id="dishNameRu" required />
+            </div>
+            <div class="form-group">
+              <label for="dishNameUz">Название (UZ):</label>
+              <input type="text" id="dishNameUz" required />
+            </div>
+            <div class="form-group">
+              <label for="dishNameEn">Название (EN):</label>
+              <input type="text" id="dishNameEn" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dishCategory">Категория:</label>
+              <select id="dishCategory" required>
+                <!-- Categories will be loaded dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dishSubcategory">Подкатегория:</label>
+              <select id="dishSubcategory">
+                <option value="">Выберите подкатегорию</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dishPrice">Цена (сум):</label>
+              <input type="number" id="dishPrice" min="0" required />
+            </div>
+            <div class="form-group">
+              <label for="dishOrder">Порядок сортировки:</label>
+              <input type="number" id="dishOrder" min="1" placeholder="1" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dishWeight">Вес:</label>
+              <input type="text" id="dishWeight" placeholder="250г" />
+            </div>
+            <div class="form-group">
+              <label for="dishTime">Время приготовления:</label>
+              <input type="text" id="dishTime" placeholder="15 мин" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dishCompositionRu">Состав (RU):</label>
+            <textarea id="dishCompositionRu" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="dishCompositionUz">Состав (UZ):</label>
+            <textarea id="dishCompositionUz" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="dishCompositionEn">Состав (EN):</label>
+            <textarea id="dishCompositionEn" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="dishImageFile">Основное изображение:</label>
+            <div class="file-upload-container">
+              <input
+                type="file"
+                id="dishImageFile"
+                accept="image/*"
+                class="file-input"
+              />
+              <label for="dishImageFile" class="file-upload-btn">
+                📁 Выбрать изображение
+              </label>
+              <div class="file-info">
+                Максимальный размер: 15MB. Поддерживаемые форматы: JPG, PNG,
+                GIF<br />
+                <small style="color: #ff6b6b"
+                  >⚠️ Изображения будут сжаты для экономии места</small
+                >
+              </div>
+              <div class="image-preview" id="mainImagePreview">
+                <!-- Preview will be shown here -->
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dishImagesFiles">Галерея изображений:</label>
+            <div class="file-upload-container">
+              <input
+                type="file"
+                id="dishImagesFiles"
+                accept="image/*"
+                multiple
+                class="file-input"
+              />
+              <label for="dishImagesFiles" class="file-upload-btn">
+                📁 Выбрать изображения (можно несколько)
+              </label>
+              <div class="file-info">
+                Максимум 10 изображений по 15MB каждое. Drag & Drop
+                поддерживается<br />
+                <small style="color: #4caf50"
+                  >✅ Оригиналы + быстрые превью для загрузки</small
+                >
+              </div>
+              <div class="images-gallery-preview" id="galleryPreview">
+                <!-- Gallery previews will be shown here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Fallback для URL (если нужно) -->
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="useUrlMode" />
+              <span>Использовать URL вместо файлов</span>
+            </label>
+          </div>
+
+          <div class="url-inputs" id="urlInputs" style="display: none">
+            <div class="form-group">
+              <label for="dishImage">URL основного изображения:</label>
+              <input
+                type="url"
+                id="dishImage"
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div class="form-group">
+              <label for="dishImages"
+                >Дополнительные изображения (через запятую):</label
+              >
+              <input
+                type="text"
+                id="dishImages"
+                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dishInStock" />
+                <span>В наличии</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dishIsAlcoholic" />
+                <span>Алкогольный напиток</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="cancel-btn" id="cancelDishBtn">
+              Отмена
+            </button>
+            <button type="submit" class="save-btn">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal" id="categoryModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="categoryModalTitle">Добавить категорию</h3>
+          <button class="close-btn" id="closeCategoryModal">×</button>
+        </div>
+        <form id="categoryForm" class="modal-body">
+          <div class="form-group">
+            <label for="categoryNameRu">Название (RU):</label>
+            <input type="text" id="categoryNameRu" required />
+          </div>
+          <div class="form-group">
+            <label for="categoryNameUz">Название (UZ):</label>
+            <input type="text" id="categoryNameUz" required />
+          </div>
+          <div class="form-group">
+            <label for="categoryNameEn">Название (EN):</label>
+            <input type="text" id="categoryNameEn" required />
+          </div>
+          <div class="form-group">
+            <label for="categoryKey">Ключ категории:</label>
+            <input type="text" id="categoryKey" required placeholder="drinks" />
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="categoryIsAlcoholic" />
+              <span>Алкогольная категория</span>
+            </label>
+          </div>
+
+          <!-- Подкатегории -->
+          <div class="form-group">
+            <label>Подкатегории:</label>
+            <div class="subcategories-manager" id="subcategoriesManager">
+              <!-- Подкатегории будут добавляться динамически -->
+            </div>
+            <button
+              type="button"
+              class="add-subcategory-btn"
+              id="addSubcategoryBtn"
+            >
+              + Добавить подкатегорию
+            </button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="cancel-btn" id="cancelCategoryBtn">
+              Отмена
+            </button>
+            <button type="submit" class="save-btn">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script
+      defer
+      src="api.min.js?v=1758058659136"
+      onerror="(function(){var s=document.createElement('script');s.defer=true;s.src='api.js?v=1758058659136';document.body.appendChild(s);})();"
+    ></script>
+    <script
+      defer
+      src="admin-script.js?v=1758058659136&debug=1&t=1758058659137"
+    ></script>
+  </body>
+</html>
