@@ -3,17 +3,20 @@
 ## 📋 Команды для выполнения по порядку
 
 ### **ШАГ 1: Подключение к серверу**
+
 ```bash
 ssh root@your-server-ip
 ```
 
 ### **ШАГ 2: Обновление системы**
+
 ```bash
 apt update
 apt upgrade -y
 ```
 
 ### **ШАГ 3: Установка Node.js 18**
+
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt-get install -y nodejs
@@ -22,12 +25,14 @@ npm --version
 ```
 
 ### **ШАГ 4: Установка PM2**
+
 ```bash
 npm install -g pm2
 pm2 --version
 ```
 
 ### **ШАГ 5: Установка Nginx**
+
 ```bash
 apt install nginx -y
 systemctl start nginx
@@ -36,11 +41,13 @@ systemctl status nginx
 ```
 
 ### **ШАГ 6: Установка дополнительных утилит**
+
 ```bash
 apt install -y git curl wget unzip
 ```
 
 ### **ШАГ 7: Настройка файрвола**
+
 ```bash
 apt install ufw -y
 ufw default deny incoming
@@ -53,6 +60,7 @@ ufw status
 ```
 
 ### **ШАГ 8: Создание директории и клонирование**
+
 ```bash
 mkdir -p /var/www
 cd /var/www
@@ -61,22 +69,26 @@ cd GavharMenu3
 ```
 
 ### **ШАГ 9: Установка зависимостей проекта**
+
 ```bash
 npm install --production
 ```
 
 ### **ШАГ 10: Инициализация базы данных**
+
 ```bash
 npm run init-db
 ```
 
 ### **ШАГ 11: Создание .env файла**
+
 ```bash
 cp env.example .env
 nano .env
 ```
 
 **В файле .env измените:**
+
 ```env
 NODE_ENV=production
 PORT=3000
@@ -91,6 +103,7 @@ BACKUP_ENABLED=true
 ```
 
 ### **ШАГ 12: Настройка прав доступа**
+
 ```bash
 chmod 755 uploads/
 chmod 755 backups/
@@ -100,6 +113,7 @@ chmod 644 .env
 ```
 
 ### **ШАГ 13: Запуск приложения**
+
 ```bash
 pm2 start ecosystem.config.js
 pm2 save
@@ -108,11 +122,13 @@ pm2 status
 ```
 
 ### **ШАГ 14: Создание конфигурации Nginx**
+
 ```bash
 nano /etc/nginx/sites-available/gavhar
 ```
 
 **Вставьте в файл:**
+
 ```nginx
 server {
     listen 80;
@@ -140,6 +156,7 @@ server {
 ```
 
 ### **ШАГ 15: Активация сайта**
+
 ```bash
 ln -s /etc/nginx/sites-available/gavhar /etc/nginx/sites-enabled/
 rm /etc/nginx/sites-enabled/default
@@ -148,12 +165,14 @@ systemctl restart nginx
 ```
 
 ### **ШАГ 16: Установка SSL (опционально)**
+
 ```bash
 apt install certbot python3-certbot-nginx -y
 certbot --nginx -d your-domain.com -d www.your-domain.com
 ```
 
 ### **ШАГ 17: Проверка работы**
+
 ```bash
 pm2 status
 systemctl status nginx
@@ -162,7 +181,9 @@ curl http://your-domain.com
 ```
 
 ### **ШАГ 18: Готово!**
+
 Ваше приложение доступно по адресу:
+
 - **HTTP:** http://your-domain.com
 - **API:** http://your-domain.com/api
 - **Админка:** http://your-domain.com/admin.html
@@ -172,6 +193,7 @@ curl http://your-domain.com
 ## 🔧 Полезные команды для управления
 
 ### **Управление приложением:**
+
 ```bash
 pm2 status          # Статус
 pm2 logs gavhar     # Логи
@@ -181,6 +203,7 @@ pm2 monit           # Мониторинг
 ```
 
 ### **Управление Nginx:**
+
 ```bash
 systemctl status nginx    # Статус
 systemctl restart nginx   # Перезапуск
@@ -189,6 +212,7 @@ nginx -t                  # Проверка конфигурации
 ```
 
 ### **Обновление приложения:**
+
 ```bash
 cd /var/www/GavharMenu3
 pm2 stop gavhar
